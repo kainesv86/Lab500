@@ -1,5 +1,9 @@
 package helper;
 
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -49,4 +53,19 @@ public class Validator {
 		return number <= max && number >= min;
 	}
 	
+        public static boolean checkValidDate(String input) {
+            String formatString = "yyyy-MM-dd";
+
+            try {
+                SimpleDateFormat format = new SimpleDateFormat(formatString);
+                format.setLenient(false);
+                format.parse(input);
+            } catch (ParseException e) {
+                return false;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+
+            return true;
+        }
 }

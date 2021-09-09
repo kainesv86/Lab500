@@ -7,6 +7,9 @@ package Test;
 
 import Foods.Foods;
 import helper.MenuHelper;
+import helper.ScannerCus;
+import helper.Validator;
+import java.io.IOException;
 
 /**
  *
@@ -17,14 +20,22 @@ public class main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        MenuHelper menu = new MenuHelper(5);
+    public static void main(String[] args) throws IOException {
+        MenuHelper menu = new MenuHelper(6);
         Foods list = new Foods();
         menu.add("Add a new food");
         menu.add("Search a food by name");
         menu.add("Remove the food by ID");
-        menu.add("Print the food list in the= descending order of expired date");
+        menu.add("Print the food list in the descending order of expired date");
+        menu.add("Save Foods to file");
         menu.add("Quit");
+        
+        ScannerCus sc = new ScannerCus();
+        
+        if (!list.loadFromFile("food.dat")) {
+            System.out.println("load file food.date failed");
+        }
+        
         int choice;
         do {
                 System.out.println("Welcome to Food Management - @ 2021 by Pham Vinh Tai");
@@ -40,11 +51,18 @@ public class main {
                         list.RemoveFoodByID();
                         break;
                     case 4:
-                        list.listSort();
-                        list.printAllFood();
+                        list.listSortAndPrint();
+                        break;
+                    case 5:
+                        if (!list.saveToFile(sc.getString(Validator.StringType.STRING, 0, 255, "Enter name file to save (<<file_name>>.dat): ") + ".dat")) {
+                            System.out.println("Save file failed");
+                        } else {
+                            System.out.println("Save file successfully");
+                        }
                         break;
                 }
-        } while (choice != 5);
+        } while (choice != 6);
+        
     }
     
 }

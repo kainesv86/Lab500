@@ -8,6 +8,7 @@ package helper;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.sql.Date;
 
 /**
  *
@@ -138,4 +139,32 @@ public class ScannerCus {
 		
 		return str;
 	}
+        
+        public Date getDate(String msg) {
+            String str;
+            Scanner sc = new Scanner(System.in);
+            Date date = null;
+            boolean isValid;
+		do {
+                    try {
+                        isValid = true;
+			str = this.getString(Validator.StringType.STRING, 0, 255, msg);
+                        if (str.isEmpty()) {
+                            throw new Exception();
+                        }
+                        
+                        if (!Validator.checkValidDate(str)) {
+                            throw new Exception();
+                        }
+                        date = java.sql.Date.valueOf(str);
+                    } catch (Exception e) {
+                        System.out.println("Invalid value");
+                        isValid = false;
+                    }
+		} while (date == null); 
+		
+            return date;
+        }
+        
+        
 }

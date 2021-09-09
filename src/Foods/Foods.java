@@ -8,9 +8,16 @@ package Foods;
 
 import helper.ScannerCus;
 import helper.Validator;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -32,7 +39,7 @@ public class Foods extends ArrayList<Food> {
     public Food searchFoodByID(String ID) {
         ID = ID.trim().toUpperCase();
         for (int i = 0; i < this.size(); i++) {
-            if (this.get(i).getID().toUpperCase().equals(ID)) {
+            if (this.get(i).getID().toUpperCase().equals(ID.toUpperCase())) {
                 return this.get(i);
             }
         }
@@ -57,8 +64,8 @@ public class Foods extends ArrayList<Food> {
             double weight = sc.getDouble(0, Double.MAX_VALUE, "Invalid value", "Enter weight:");
             String type = sc.getString(Validator.StringType.STRING, 0, 255, "Enter type: ");
             String place = sc.getString(Validator.StringType.STRING, 0, 255, "Enter place: ");
-            long millis = System.currentTimeMillis();
-            Date date = new Date(millis);
+ 
+            Date date = sc.getDate("Enter expired date(yyyy-mm-dd): ");
             
             this.add(new Food(ID, name, weight, type, place, date));
             System.out.println("Do you want to add another food");
@@ -72,9 +79,10 @@ public class Foods extends ArrayList<Food> {
         boolean isFound;
         do {
             String name = sc.getString(Validator.StringType.STRING, 0, 255, "Enter food for search: ");
+            name = name.trim();
             isFound = false;
             for (int i = 1; i < this.size(); i++) {
-                if (this.get(i).getName().indexOf(name) >= 0) {
+                if (this.get(i).getName().contains(name)) {
                     System.out.println(this.get(i).toString());
                     isFound = true;
                 }
@@ -105,17 +113,23 @@ public class Foods extends ArrayList<Food> {
         System.out.println("Food not found");
     }
     
-    public void listSort() {
+    public void listSortAndPrint() {
         Food e = null;
         int n = this.size();
+        
         for (int i = 0; i < n-1; i++) {
             for (int j = 0; j < n - i - 1; j++) {
-                if (this.get(i).getDate().compareTo(this.get(j).getDate()) > 0) {
-                    e = this.get(i);
-                    this.set(i, this.get(j));
-                    this.set(j, e);
+                
+                if (this.get(j+1).getDate().compareTo(this.get(j).getDate()) > 0) {
+                    e = this.get(j);
+                    this.set(j, this.get(j+1));
+                    this.set(j+1, e);
                 }
             }
+        }
+        
+        for (Food item : this) {
+            System.out.println(item.toString());
         }
     }
     
@@ -123,5 +137,32 @@ public class Foods extends ArrayList<Food> {
         for (int i = 0; i < this.size(); i++){
                 System.out.println(this.get(i).toString());
             }
+    }
+    
+    public boolean loadFromFile(String fileName) throws FileNotFoundException, IOException {
+        File f = new File(fileName);
+        if (!f.exists()) return false;
+	FileReader fr = new FileReader(f);
+	BufferedReader bf = new BufferedReader(fr);
+	String details;
+        while ((details = bf.readLine()) != null) {
+				StringTokenizer stk = new StringTokenizer(details);
+				String ID = stk.nextToken(",").trim();
+                                String name = stk.nextToken(",").trim();
+                                double weight = Double.parseDouble(stk.nextToken(",").trim());
+                                String type = stk.nextToken(",").trim();
+                                String place = stk.nextToken(",").trim();
+                                Date date = Date.valueOf(stk.nextToken(",").trim());
+                                this.add(new Food(ID, name, weight, type, place, date));
+			}
+        return true;
+    }
+        
+    public boolean saveToFile(String fileName) throws FileNotFoundException, IOException {
+		File f = new File(fileName);
+		try (PrintWriter out = new PrintWriter(f)) {
+			this.forEach(item -> out.println(item.toString()));
+		}
+		return true;
     }
 }
